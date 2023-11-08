@@ -37,6 +37,26 @@ let background = {
     }
 }
 
+let intro = {
+
+    spriteX:134,
+    spriteY:0,
+    altura:152,
+    largura:174,
+    x:(canvas.width / 2) - 174 / 2,
+    y:50,
+
+    desenha(){
+        contexto.drawImage(
+            sprites,
+            intro.spriteX, intro.spriteY, 
+            intro.largura, intro.altura, 
+            intro.x, intro.y,  
+            intro.largura, intro.altura
+        )
+    }
+}
+
 let chao = {
 
     spriteX:0,
@@ -72,7 +92,14 @@ let flappyBird = {
     largura:33,
     x:10,
     y:50,
+    gravidade: 0.25,
+    velocidade: 0,
+    atualiza(){
 
+        flappyBird.velocidade = flappyBird.velocidade + flappyBird.gravidade;
+        flappyBird.y = flappyBird.y + flappyBird.velocidade;
+        console.log(flappyBird.y)
+    },
     desenha(){
         contexto.drawImage(
             sprites,
@@ -83,15 +110,51 @@ let flappyBird = {
         );
 
     }
+};
+
+let telaAtiva = {};
+function mudarDeTela(novaTela) {
+    telaAtiva = novaTela
 }
+const telas = {
+    INICIO: {
+        desenha(){
+            background.desenha();
+            chao.desenha();
+            intro.desenha()
+        },
+        atualiza(){
+
+        },
+        click(){
+            mudarDeTela(telas.JOGO)
+        },
+    }
+};
+
+telas.JOGO = {
+    desenha(){
+        background.desenha();
+        chao.desenha();
+        flappyBird.desenha();
+    },
+    atualiza(){
+        flappyBird.atualiza()
+    },
+   
+};
 function loop() {
     
-    background.desenha();
-    flappyBird.desenha();
-    chao.desenha();
+    telaAtiva.desenha();
+    telaAtiva.atualiza();
 
-    
-    requestAnimationFrame(loop)
-}
+    requestAnimationFrame(loop);
+};
 
+window.addEventListener('click', function (){
+ if(telaAtiva.click){
+    telaAtiva.click();
+ }
+})
+mudarDeTela(telas.INICIO)
 loop();
