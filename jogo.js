@@ -6,6 +6,9 @@ const canvas = document.querySelector('canvas'); // pega a tag canvas do HTML
 const contexto = canvas.getContext('2d'); // indica que o jogo está sendo feito em 2D
 
 let frames = 0;
+let pontuacao = 0;
+let melhorPontuacao = 0;
+
 const HIT = new Audio();
 HIT.src = './efeitos/efeitos_hit.wav'
 
@@ -45,6 +48,7 @@ function flappyBirdColide(flappyBird, chao){
     const chaoy = chao.y
 
     if(flappyBirdY >= chaoy){
+        validarPontuacao()
         return true;
     }
     
@@ -52,6 +56,35 @@ function flappyBirdColide(flappyBird, chao){
 
 
 };
+function validarPontuacao (){
+    if(pontuacao >= 40){
+        gameOver.medalha.spriteX = 0;
+        gameOver.medalha.spriteY =78;
+        return
+    }
+    if(pontuacao >= 30){
+        gameOver.medalha.spriteX = 0;
+        gameOver.medalha.spriteY = 124;
+        return
+    }
+    if(pontuacao >= 20){
+        gameOver.medalha.spriteX = 48;
+        gameOver.medalha.spriteY = 78;
+        return
+    }
+    if(pontuacao >= 10){
+        gameOver.medalha.spriteX = 48;
+        gameOver.medalha.spriteY = 124;
+        console.log('Medalha de bronze')
+        return
+    }
+    gameOver.medalha.spriteX =undefined ;
+    gameOver.medalha.spriteY = undefined ;
+    console.log('sem medalha')
+    return
+
+ }
+
 let intro = {
 
     spriteX:134,
@@ -70,6 +103,53 @@ let intro = {
             intro.largura, intro.altura
         )
     }
+}
+let gameOver = {
+
+    spriteX:134,
+    spriteY:153,
+    altura:200,
+    largura:226,
+    x:(canvas.width / 2) - 226 / 2,
+    y:50,
+    medalha:{
+        spriteX:undefined,
+        spriteY:undefined,
+        altura:44,
+        largura:44,
+        x:73,
+        y:137,
+    },
+    desenha(){
+        contexto.drawImage(
+            sprites,
+            gameOver.spriteX, gameOver.spriteY, 
+            gameOver.largura, gameOver.altura, 
+            gameOver.x, gameOver.y,  
+             gameOver.largura, gameOver.altura
+         )
+
+         contexto.drawImage(
+            sprites,
+            this.medalha.spriteX, this.medalha.spriteY, 
+            this.medalha.largura, this.medalha.altura, 
+            this.medalha.x, this.medalha.y,  
+            this.medalha.largura, this.medalha.altura
+         
+         )
+        
+        contexto.font = '35px "VT323"';
+        contexto.textAlign = 'right';
+        contexto.fillStyle = 'white';
+        contexto.fillText(`${pontuacao}`, canvas.width - 80, 148);    
+
+    
+
+        contexto.font = '35px "VT323"';
+        contexto.textAlign = 'right';
+        contexto.fillStyle = 'white';
+        contexto.fillText(`${ melhorPontuacao}`, canvas.width - 80, 190);    
+      }
 }
 function criaChao() {
     let chao = {
@@ -124,38 +204,13 @@ function criaCanos() {
         },
         espaco: 80,
 
-      
-
-        temColisaoComOFlappBird(par){
-            const cabecaDoFlappyBird = global.flappyBird.y;
-            const peDoFlappyBird = global.flappyBird.y + global.flappyBird.altura;
-        
-        if(global.flappyBird.x >= par.x){
-
-                if (cabecaDoFlappyBird <= par.canoCeu.y ) {
-                    return true
-                }
-
-                if (peDoFlappyBird >= par.canoChao.y) {
-                    return true
-                }
-                
-                return console.log('Perdeu')
-            }
-        },
-
         desenha(){
             canos.pares.forEach(function(par) {
-            
                 const movimentoYCano = -par.y;
-                const espacamentoDoCano = 80;
-
+                const espacamentoDoCano = 90;
+                
                 const canoCeuX = par.x;
                 const canoCeuY =movimentoYCano;
-        
-                const canoChaoX = par.x;
-                const canoChaoY = espacamentoDoCano + canos.altura + movimentoYCano;
-                
                 contexto.drawImage(
                     sprites,
                     canos.ceu.spriteX, canos.ceu.spriteY,
@@ -163,58 +218,114 @@ function criaCanos() {
                     canoCeuX, canoCeuY,
                     canos.largura, canos.altura,
                     
-                )
-        
-                contexto.drawImage(
+                    )
+                    
+                const canoChaoX = par.x;
+                const canoChaoY = espacamentoDoCano + canos.altura + movimentoYCano;
+                    contexto.drawImage(
                     sprites,
                     canos.chao.spriteX, canos.chao.spriteY,
                     canos.largura, canos.altura,
                     canoChaoX, canoChaoY,
                     canos.largura, canos.altura,
                     
-                )
-
+                )                        
                 par.canoCeu = {
                     x: canoCeuX,
-                    y: canos.altura + canoCeuY,
+                    y: canos.altura + canoCeuY  
                 }
                 par.canoChao = {
                     x: canoChaoX,
-                    y: canoChaoY,
+                    y: canoChaoY
                 }
             })
         },
-        pares: [{
-             }
-        ],
+        temColisaoComOFlappBird(par){
+            const cabecaDoFlappyBird = global.flappyBird.y;
+            const peDoFlappyBird = global.flappyBird.y + global.flappyBird.altura;
+            
+            if(canos.pares[0] !== undefined){
+                let canoAPassar = canos.pares[0].x;
+
+                if(canoAPassar >= 108 && canoAPassar <= 120  + canos.largura){
+                    if((global.flappyBird.x + global.flappyBird.largura) >= par.x){
+                        if (cabecaDoFlappyBird <= par.canoCeu.y ) {
+                            validarPontuacao()
+                            return true;
+                        }
+            
+                        if (peDoFlappyBird >= par.canoChao.y) {
+                            validarPontuacao()
+                            return true;
+                        }
+                    }
+                    return false;
+    
+                }
+            }
+        },
+
+        pares: [],
         atualiza(){
             const passou100Frames = frames % 100 === 0;
 
             if(passou100Frames){
-                console.log('passou 100 Frames ' + canos.pares.y)
                 canos.pares.push ({
                     x: canvas.width,
                     y: 150 * (Math.random() + 1),
                 })
+                console.log('passou 100 Frames ' + canos.pares.y)
             }
 
             canos.pares.forEach(function(par) {
-                par.x -= 2
-
+                par.x = par.x - 2;
+                console.log(par.x)
+                if(canos.temColisaoComOFlappBird(par)){
+                    if(pontuacao > melhorPontuacao){
+                        melhorPontuacao = pontuacao
+                    }                    
+                    HIT.play(); 
+                    
+                    mudarDeTela(telas.GAME_OVER)
+                }
+                
                 if(par.x + canos.largura<= 0){
                     canos.pares.shift();
                 }
-
-                if(canos.temColisaoComOFlappBird(par)){
-                    mudarDeTela(telas.INICIO)
-                }
             })
+            let canoAPassar = canos.pares[0];
+            if(canoAPassar != undefined){
+                let passouPeloCano = canoAPassar.x === 108;
+                console.log( 'passou do cano ' + canoAPassar)
+                
+                if(passouPeloCano){
+                     console.log('passou do meio')
+                
+                    pontuacao += 1;
+                }
+            }
+            
         }
     }
 
     return canos
 };
 
+function criarPlacar(){
+    const placar = {
+        desenha() {
+            contexto.font = '35px "VT323"';
+            contexto.textAlign = 'right';
+            contexto.fillStyle = 'white';
+            contexto.fillText(`${pontuacao}`, canvas.width - 10, 35);      
+        },
+           
+        atualiza() {
+          
+        },
+    }
+    return placar;
+}
 
 function criaFlappyBird(){
     let flappyBird = {
@@ -255,14 +366,13 @@ function criaFlappyBird(){
     atualiza(){
 
         if(flappyBirdColide(flappyBird,global.chao )) {
+            if(pontuacao > melhorPontuacao){
+                melhorPontuacao = pontuacao
+            }                    
             HIT.play();
+            
+            mudarDeTela(telas.GAME_OVER );  
 
-            setTimeout(() => {
-                mudarDeTela(telas.INICIO);  
-
-            }, 500);
-
-            return; 
         }
 
         flappyBird.velocidade = flappyBird.velocidade + flappyBird.gravidade;
@@ -301,7 +411,7 @@ const telas = {
         inicializa(){
             global.flappyBird = criaFlappyBird();
             global.canos= criaCanos();
-            global.chao = criaChao();
+            global.chao = criaChao();   
         },
         desenha() {
             background.desenha();
@@ -314,21 +424,29 @@ const telas = {
         },
         click() {
             mudarDeTela(telas.JOGO);
+            pontuacao = 0;
         },
     }
 };
 
 telas.JOGO = {
+    inicializa(){
+        global.placar = criarPlacar();
+    },    
     desenha(){
         background.desenha();
         global.canos.desenha()
         global.chao.desenha();
         global.flappyBird.desenha();
+        global.placar.desenha()
+        
     },
     atualiza(){
         global.flappyBird.atualiza();
         global.chao.atualiza();
         global.canos.atualiza();
+        global.placar.atualiza()
+        global.placar.atualiza()
 
     },
     click(){
@@ -336,6 +454,19 @@ telas.JOGO = {
     },
    
 };
+
+telas.GAME_OVER = { 
+    desenha(){
+        gameOver.desenha();
+
+    },
+    atualiza(){
+
+    },
+    click(){
+        mudarDeTela(telas.INICIO)
+    }
+}
 function loop() {
     
     telaAtiva.desenha();
