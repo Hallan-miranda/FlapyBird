@@ -1,9 +1,9 @@
 
-const sprites = new Image() ; // cria uma imagem na memória
-sprites.src = './sprites.png'; // indica a imagem 
+const sprites = new Image() ; // cria uma imagem na memória.
+sprites.src = './sprites.png'; // indica a imagem.
 
-const canvas = document.querySelector('canvas'); // pega a tag canvas do HTML
-const contexto = canvas.getContext('2d'); // indica que o jogo está sendo feito em 2D
+const canvas = document.querySelector('canvas'); // pega a tag canvas do HTML.
+const contexto = canvas.getContext('2d'); // indica que o jogo está sendo feito em 2D.
 
 let frames = 0;
 let pontuacao = 0;
@@ -12,6 +12,7 @@ let melhorPontuacao = 0;
 const HIT = new Audio();
 HIT.src = './efeitos/efeitos_hit.wav'
 
+// Cria o fundo do jogo com base na sprite.png.
 let background = {
 
     spriteX:390,
@@ -43,50 +44,9 @@ let background = {
     }
 }
 
-function flappyBirdColide(flappyBird, chao){
-    const flappyBirdY = flappyBird.y + flappyBird.altura;
-    const chaoy = chao.y
-
-    if(flappyBirdY >= chaoy){
-        validarPontuacao()
-        return true;
-    }
-    
-    return false
-
-
-};
-function validarPontuacao (){
-    if(pontuacao >= 40){
-        gameOver.medalha.spriteX = 0;
-        gameOver.medalha.spriteY =78;
-        return
-    }
-    if(pontuacao >= 30){
-        gameOver.medalha.spriteX = 0;
-        gameOver.medalha.spriteY = 124;
-        return
-    }
-    if(pontuacao >= 20){
-        gameOver.medalha.spriteX = 48;
-        gameOver.medalha.spriteY = 78;
-        return
-    }
-    if(pontuacao >= 10){
-        gameOver.medalha.spriteX = 48;
-        gameOver.medalha.spriteY = 124;
-        console.log('Medalha de bronze')
-        return
-    }
-    gameOver.medalha.spriteX =undefined ;
-    gameOver.medalha.spriteY = undefined ;
-    console.log('sem medalha')
-    return
-
- }
-
+// Cria a imagem de início do jogo.
 let intro = {
-
+ 
     spriteX:134,
     spriteY:0,
     altura:152,
@@ -104,6 +64,8 @@ let intro = {
         )
     }
 }
+
+// Cria o placar final com a pontuação e medalha.
 let gameOver = {
 
     spriteX:134,
@@ -151,11 +113,58 @@ let gameOver = {
         contexto.fillText(`${ melhorPontuacao}`, canvas.width - 80, 190);    
       }
 }
-function criaChao() {
-    let chao = {
+
+// Valida se o flappyBird colide com o chão.
+function flappyBirdColide(flappyBird, chao){
+    const flappyBirdY = flappyBird.y + flappyBird.altura;
+    const chaoy = chao.y
+
+    if(flappyBirdY >= chaoy){
+        validarPontuacao()
+        return true;
+    }
     
-        spriteX:0,  
-        spriteY:610,
+    return false
+
+
+};
+
+// Faz a verificação da pontuação e indica qual medalha usuário recebe.
+function validarPontuacao (){
+    if(pontuacao >= 40){
+        gameOver.medalha.spriteX = 0;
+        gameOver.medalha.spriteY =78;
+        return
+    }
+    if(pontuacao >= 30){
+        gameOver.medalha.spriteX = 0;
+        gameOver.medalha.spriteY = 124;
+        return
+    }
+    if(pontuacao >= 20){
+        gameOver.medalha.spriteX = 48;
+        gameOver.medalha.spriteY = 78;
+        return
+    }
+    if(pontuacao >= 10){
+        gameOver.medalha.spriteX = 48;
+        gameOver.medalha.spriteY = 124;
+        console.log('Medalha de bronze')
+        return
+    }
+    gameOver.medalha.spriteX =undefined ;
+    gameOver.medalha.spriteY = undefined ;
+    console.log('sem medalha')
+    return
+
+};
+
+// Cria e faz a animação do chão.
+ function criaChao() {
+     let chao = {
+         
+         spriteX:0,  
+         spriteY:610,
         altura:112,
         largura:224,
         x:0,
@@ -190,6 +199,7 @@ function criaChao() {
     return chao
 };
 
+// Faz a criação, animação, remoção e valida de colisão com os canos.
 function criaCanos() {
     let canos = {
         altura:400,
@@ -240,6 +250,8 @@ function criaCanos() {
                 }
             })
         },
+
+        // Valida se o FlappyBir Colidiu com o cano
         temColisaoComOFlappBird(par){
             const cabecaDoFlappyBird = global.flappyBird.y;
             const peDoFlappyBird = global.flappyBird.y + global.flappyBird.altura;
@@ -265,6 +277,7 @@ function criaCanos() {
             }
         },
 
+        // Faz a animação do cano
         pares: [],
         atualiza(){
             const passou100Frames = frames % 100 === 0;
@@ -277,9 +290,10 @@ function criaCanos() {
                 console.log('passou 100 Frames ' + canos.pares.y)
             }
 
+            //Configura o 'bestScore' e após colisão
             canos.pares.forEach(function(par) {
                 par.x = par.x - 2;
-                console.log(par.x)
+
                 if(canos.temColisaoComOFlappBird(par)){
                     if(pontuacao > melhorPontuacao){
                         melhorPontuacao = pontuacao
@@ -293,14 +307,14 @@ function criaCanos() {
                     canos.pares.shift();
                 }
             })
+
+            //Verifica se o usuário passou pelo cano, se sim ele pontua.
             let canoAPassar = canos.pares[0];
             if(canoAPassar != undefined){
                 let passouPeloCano = canoAPassar.x === 108;
-                console.log( 'passou do cano ' + canoAPassar)
                 
                 if(passouPeloCano){
-                     console.log('passou do meio')
-                
+
                     pontuacao += 1;
                 }
             }
@@ -311,6 +325,7 @@ function criaCanos() {
     return canos
 };
 
+// Cria o placar no final da partida.
 function criarPlacar(){
     const placar = {
         desenha() {
@@ -327,6 +342,7 @@ function criarPlacar(){
     return placar;
 }
 
+// Faz a criação e anima o flappyBird.
 function criaFlappyBird(){
     let flappyBird = {
 
@@ -347,6 +363,7 @@ function criaFlappyBird(){
         {spriteX:0, spriteY:26,},        
     ],
 
+    // Animação do FlappyBird
     frameAtual: 0,
     atualizaFrameAtual(){
         const intervaloDeFrames = 10;
@@ -374,7 +391,7 @@ function criaFlappyBird(){
             mudarDeTela(telas.GAME_OVER );  
 
         }
-
+        // Cria gravida para queda do FlappyBird
         flappyBird.velocidade = flappyBird.velocidade + flappyBird.gravidade;
         flappyBird.y = flappyBird.y + flappyBird.velocidade;
     },
@@ -396,9 +413,14 @@ function criaFlappyBird(){
     return flappyBird
 };
 
+// Cria uma variavel para guardar as informações das partes criadas acima do jogo, para que quando o jogo
+// comece de novo não mantenha os mesmos valores.
 const global = {};
+
+// Variavel que guarda as cada tela do jogo.
 let telaAtiva = {};
 
+// Faz as alterações entre as telass
 function mudarDeTela(novaTela) {
     telaAtiva = novaTela;
 
@@ -406,6 +428,8 @@ function mudarDeTela(novaTela) {
         telaAtiva.inicializa();
     }
 }
+
+// Renderiza a tela de inicio
 const telas = {
     INICIO: {
         inicializa(){
@@ -429,6 +453,7 @@ const telas = {
     }
 };
 
+// Renderiza a tela durante o jogo
 telas.JOGO = {
     inicializa(){
         global.placar = criarPlacar();
@@ -455,6 +480,7 @@ telas.JOGO = {
    
 };
 
+// Renderiza a tela do placar final
 telas.GAME_OVER = { 
     desenha(){
         gameOver.desenha();
@@ -467,6 +493,8 @@ telas.GAME_OVER = {
         mudarDeTela(telas.INICIO)
     }
 }
+
+// Cria um loop para o jogo ficar rendereizar infinitamente(animação)
 function loop() {
     
     telaAtiva.desenha();
@@ -483,5 +511,6 @@ window.addEventListener('click', function (){
  };
 
 })
+// Faz o jogo começar    com a tela de inicio
 mudarDeTela(telas.INICIO)
 loop();
